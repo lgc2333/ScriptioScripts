@@ -79,7 +79,6 @@
    */
   const toggleListener = (event) => {
     const { path, enabled } = event.detail;
-    console.log(event.detail, selfPath);
     if (path === selfPath) toggle(enabled);
   };
   window.addEventListener('scriptio-toggle', toggleListener);

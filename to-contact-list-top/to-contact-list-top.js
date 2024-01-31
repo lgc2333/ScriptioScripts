@@ -29,6 +29,10 @@
       .querySelector(barItemSelector)
       .cloneNode(true);
     templateLeftBarElem.querySelector('i.q-icon').innerHTML = iconHtml;
+    /** @type {HTMLDivElement} */
+    const itemChildElem =
+      templateLeftBarElem.firstElementChild.firstElementChild;
+    itemChildElem.classList.value = 'to-top-item func-menu__item vue-component';
     templateLeftBarElem
       .querySelector('div[aria-label]')
       .setAttribute('aria-label', label);

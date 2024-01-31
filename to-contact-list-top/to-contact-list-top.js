@@ -16,7 +16,6 @@
 </svg>`;
 
   const contactListSelector = '.q-scroll-view.recent-contact-list';
-  const placeholderSelector = `${contactListSelector} .viewport-list__placeholder`;
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu';
   const barItemSelector = `${lowerSidebarSelector} .func-menu__item_wrap`;
 
@@ -37,12 +36,8 @@
   }
 
   function toContactListTop() {
-    const topPlaceholderElem = document.querySelector(placeholderSelector);
-    topPlaceholderElem.style.height = '0px';
     const contactListElem = document.querySelector(contactListSelector);
     contactListElem.scrollTo({ top: 0, behavior: 'smooth' });
-    contactListElem.dispatchEvent(new Event('scroll'));
-    contactListElem.dispatchEvent(new Event('scrollend'));
   }
 
   function main() {

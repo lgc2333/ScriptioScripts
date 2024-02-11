@@ -1,7 +1,8 @@
-// 添加一个回到聊天列表顶部的侧边栏按钮 - v1.1
+// 添加一个回到聊天列表顶部的侧边栏按钮 - v1.2
 // @run-at main
 
 // 更新日志：
+// v1.2: 实现 #2，支持更多列表的回顶部
 // v1.1: 修复 #1、添加实时响应支持
 
 (function () {
@@ -18,7 +19,7 @@
   />
 </svg>`;
 
-  const contactListSelector = '.q-scroll-view.recent-contact-list';
+  const contactListSelector = '.q-scroll-view';
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu';
   const barItemSelector = `${lowerSidebarSelector} .func-menu__item_wrap`;
   const toTopClassName = 'to-top-item';
@@ -27,6 +28,18 @@
   const selfPath = document.currentScript.getAttribute('data-scriptio-script');
 
   let currentEnabled = false;
+
+  /**
+   * @param {HTMLElement} elem
+   * @returns {boolean}
+   */
+  function elemVisible(elem) {
+    return !!(
+      elem.offsetWidth ||
+      elem.offsetHeight ||
+      elem.getClientRects().length
+    );
+  }
 
   /**
    * @param {string} iconHtml
@@ -49,8 +62,12 @@
   }
 
   function toContactListTop() {
-    const contactListElem = document.querySelector(contactListSelector);
-    contactListElem.scrollTo({ top: 0, behavior: 'smooth' });
+    for (const elem of document.querySelectorAll(contactListSelector)) {
+      if (elemVisible(elem)) {
+        elem.scrollTo({ top: 0, behavior: 'smooth' });
+        break;
+      }
+    }
   }
 
   const toTopElem = createLeftBarItem(topArrowSvg, '回顶部', toTopClassName);

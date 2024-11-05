@@ -1,7 +1,8 @@
-// 添加一个回到聊天列表顶部的侧边栏按钮 - v1.2
+// 添加一个回到聊天列表顶部的侧边栏按钮 - v1.3
 // @run-at main
 
 // 更新日志：
+// v1.3：实现 #4，确保按钮始终置顶
 // v1.2: 实现 #2，支持更多列表的回顶部
 // v1.1: 修复 #1、添加实时响应支持
 
@@ -44,9 +45,11 @@
   /**
    * @param {string} iconHtml
    * @param {string} label
-   * @returns {Node}
+   * @param {string} className
+   * @returns {HTMLDivElement}
    */
   function createLeftBarItem(iconHtml, label, className) {
+    /** @type {HTMLDivElement} */
     const templateLeftBarElem = document
       .querySelector(barItemSelector)
       .cloneNode(true);
@@ -72,18 +75,38 @@
 
   const toTopElem = createLeftBarItem(topArrowSvg, '回顶部', toTopClassName);
   toTopElem.addEventListener('click', toContactListTop);
+  /** @type {HTMLDivElement} */
   const sidebarLowerElem = document.querySelector(lowerSidebarSelector);
+
+  function insertButton() {
+    sidebarLowerElem.insertBefore(toTopElem, sidebarLowerElem.firstChild);
+  }
+
+  function removeButton() {
+    toTopElem.remove();
+  }
+
+  const sidebarObserver = new MutationObserver(() => {
+    // if (!toTopElem.parentElement) return;
+    insertButton();
+    removeButton();
+  });
+  function startObserve() {
+    sidebarObserver.observe(sidebarLowerElem, { childList: true });
+  }
 
   /**
    * @param {boolean} state
    */
   function toggle(state) {
     const enable = () => {
-      sidebarLowerElem.insertBefore(toTopElem, sidebarLowerElem.firstChild);
+      insertButton();
+      startObserve();
     };
 
     const disable = () => {
-      toTopElem.remove();
+      removeButton();
+      sidebarObserver.disconnect();
     };
 
     if (state && !currentEnabled) enable();

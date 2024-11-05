@@ -71,37 +71,27 @@
   /** @type {HTMLDivElement} */
   const sidebarLowerElem = document.querySelector(lowerSidebarSelector)
 
-  function insertButton() {
+  function enable() {
     sidebarLowerElem.insertBefore(toTopElem, sidebarLowerElem.firstChild)
+    sidebarObserver.takeRecords()
+    sidebarObserver.observe(sidebarLowerElem, { childList: true })
   }
 
-  function removeButton() {
+  function disable() {
+    sidebarObserver.disconnect()
     toTopElem.remove()
   }
 
   const sidebarObserver = new MutationObserver(() => {
     // if (!toTopElem.parentElement) return;
-    insertButton()
-    removeButton()
+    disable()
+    enable()
   })
-  function startObserve() {
-    sidebarObserver.observe(sidebarLowerElem, { childList: true })
-  }
 
   /**
    * @param {boolean} state
    */
   function toggle(state) {
-    const enable = () => {
-      insertButton()
-      startObserve()
-    }
-
-    const disable = () => {
-      removeButton()
-      sidebarObserver.disconnect()
-    }
-
     if (state && !currentEnabled) enable()
     else if (!state && currentEnabled) disable()
     currentEnabled = state

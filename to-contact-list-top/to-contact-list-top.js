@@ -83,7 +83,8 @@
     }
   }
 
-  let $toTopElemCache = /** @type {HTMLDivElement | null} */ (null)
+  /** @type {HTMLDivElement | null} */
+  let $toTopElemCache = null
 
   function getToTopElem() {
     if ($toTopElemCache) {
@@ -95,6 +96,7 @@
     }
     return $toTopElemCache
   }
+
   const sidebarObserver = new MutationObserver(() => {
     // if (!toTopElem.parentElement) return;
     disable()

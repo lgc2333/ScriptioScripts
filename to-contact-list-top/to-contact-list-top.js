@@ -125,13 +125,15 @@
       // console.log('not enabled, return')
       return
     }
-    const sidebarLowerElem = document.querySelector(lowerSidebarSelector)
     const toTopElem = getToTopElem()
-    if (!sidebarLowerElem || !toTopElem) {
+    if (!toTopElem) {
       // console.log('el not found, schedule retry')
       enableRetryTimeout = setTimeout(enable, 100)
       return
     }
+    const sidebarLowerElem = /** @type {HTMLElement} */ (
+      document.querySelector(lowerSidebarSelector)
+    )
     sidebarLowerElem.insertBefore(toTopElem, sidebarLowerElem.firstChild)
     sidebarObserver.takeRecords()
     sidebarObserver.observe(sidebarLowerElem, { childList: true })

@@ -1,21 +1,26 @@
 // ==UserScript==
 // @name         To Contact List Top
 // @description  添加一个回到聊天列表顶部的侧边栏按钮
-// @version      2.0
+// @version      2.1
 // @author       LgCookie
-// @license      gpl-3.0
+// @license      MIT
 // @homepageURL  https://github.com/lgc2333/ScriptioScripts/tree/main/to-contact-list-top
 // @run-at       main
 // @reactive     true
 // ==/UserScript==
 
 // 更新日志：
+// v2.1：添加工具提示
 // v2.0：适配新版 Scriptio，有点笨地修复了 #5
 // v1.3：实现 #4，确保按钮始终置顶
 // v1.2: 实现 #2，支持更多列表的回顶部
 // v1.1: 修复 #1、添加实时响应支持
 
 ;(() => {
+  const toTopLabel = '回顶部'
+  const toTopClassName = 'to-top-item'
+  const toolTipId = `${toTopClassName}-tooltip`
+
   const topArrowSvg = `<svg
   viewBox="0 0 16 16"
   xmlns="http://www.w3.org/2000/svg">
@@ -28,11 +33,17 @@
     d="m 4,10 4,-4 4,4"
   />
 </svg>`
+  const toolTipHtml = `<div
+  id="${toolTipId}"
+  class="sidebar-tooltips__content"
+  style="left: 55px"
+>
+  ${toTopLabel}
+</div>`
 
   const contactListSelector = '.q-scroll-view'
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu'
   const barItemSelector = `${lowerSidebarSelector} .func-menu__item_wrap`
-  const toTopClassName = 'to-top-item'
 
   let currentEnabled = false
 
@@ -44,11 +55,40 @@
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
   }
 
+  function toContactListTop() {
+    const nodeList = document.querySelectorAll(contactListSelector)
+    for (let i = 0; i < nodeList.length; i++) {
+      const elem = /** @type {HTMLElement} */ (nodeList[i])
+      if (elemVisible(elem)) {
+        elem.scrollTo({ top: 0, behavior: 'smooth' })
+        break
+      }
+    }
+  }
+
+  /**
+   * @param {HTMLDivElement} leftBarEl
+   * @param {HTMLDivElement} toolTipEl
+   */
+  function setupToolTip(leftBarEl, toolTipEl) {
+    /** @param {boolean} state */
+    const toggleToolTip = (state) => {
+      if (state) {
+        const btnPos = leftBarEl.getBoundingClientRect()
+        toolTipEl.style.top = `${btnPos.y}px`
+      }
+      toolTipEl.style.display = state ? 'block' : 'none'
+    }
+    leftBarEl.addEventListener('mouseenter', () => toggleToolTip(true))
+    leftBarEl.addEventListener('mouseleave', () => toggleToolTip(false))
+    toggleToolTip(false)
+  }
+
   /**
    * @param {string} iconHtml
    * @param {string} label
    * @param {string} className
-   * @returns {HTMLDivElement | null}
+   * @returns {[HTMLDivElement, HTMLDivElement] | null}
    */
   function createLeftBarItem(iconHtml, label, className) {
     const barItemEl = /** @type {HTMLElement | null} */ (
@@ -69,30 +109,22 @@
     templateLeftBarElem
       .querySelector('div[aria-label]')
       ?.setAttribute('aria-label', label)
-    return templateLeftBarElem
+    templateLeftBarElem.addEventListener('click', toContactListTop)
+
+    document.body.insertAdjacentHTML('beforeend', toolTipHtml)
+    const toolTipElem = /** @type {HTMLDivElement} */ (
+      document.getElementById(toolTipId)
+    )
+    setupToolTip(templateLeftBarElem, toolTipElem)
+
+    return [templateLeftBarElem, toolTipElem]
   }
 
-  function toContactListTop() {
-    const nodeList = document.querySelectorAll(contactListSelector)
-    for (let i = 0; i < nodeList.length; i++) {
-      const elem = /** @type {HTMLElement} */ (nodeList[i])
-      if (elemVisible(elem)) {
-        elem.scrollTo({ top: 0, behavior: 'smooth' })
-        break
-      }
-    }
-  }
-
-  /** @type {HTMLDivElement | null} */
+  /** @type {[HTMLDivElement, HTMLDivElement] | null} */
   let $toTopElemCache = null
-
   function getToTopElem() {
-    if ($toTopElemCache) {
-      return $toTopElemCache
-    }
-    $toTopElemCache = createLeftBarItem(topArrowSvg, '回顶部', toTopClassName)
-    if ($toTopElemCache) {
-      $toTopElemCache.addEventListener('click', toContactListTop)
+    if (!$toTopElemCache) {
+      $toTopElemCache = createLeftBarItem(topArrowSvg, '回顶部', toTopClassName)
     }
     return $toTopElemCache
   }
@@ -115,7 +147,7 @@
     // console.log('disable')
     clearEnableRetryTimeout()
     sidebarObserver.disconnect()
-    if ($toTopElemCache) $toTopElemCache.remove()
+    if ($toTopElemCache) $toTopElemCache[0].remove()
   }
 
   function enable() {
@@ -134,7 +166,7 @@
     const sidebarLowerElem = /** @type {HTMLElement} */ (
       document.querySelector(lowerSidebarSelector)
     )
-    sidebarLowerElem.insertBefore(toTopElem, sidebarLowerElem.firstChild)
+    sidebarLowerElem.insertBefore(toTopElem[0], sidebarLowerElem.firstChild)
     sidebarObserver.takeRecords()
     sidebarObserver.observe(sidebarLowerElem, { childList: true })
   }

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         To Contact List Top
 // @description  添加一个回到聊天列表顶部的侧边栏按钮
-// @version      2.1
-// @author       LgCookie
+// @version      2.2
+// @author       LgCookie,Luorix
 // @license      MIT
 // @homepageURL  https://github.com/lgc2333/ScriptioScripts/tree/main/to-contact-list-top
 // @run-at       main
@@ -10,6 +10,7 @@
 // ==/UserScript==
 
 // 更新日志：
+// v2.2：修复如果克隆的元素为邮件元素时，可能会复制红色角标的问题
 // v2.1：添加工具提示
 // v2.0：适配新版 Scriptio，有点笨地修复了 #5
 // v1.3：实现 #4，确保按钮始终置顶
@@ -25,21 +26,21 @@
   viewBox="0 0 16 16"
   xmlns="http://www.w3.org/2000/svg">
   <path
-    stoke-width="1.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-    stroke="currentColor"
-    d="m 4,10 4,-4 4,4"
+  stoke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  fill="none"
+  stroke="currentColor"
+  d="m 4,10 4,-4 4,4"
   />
-</svg>`
+  </svg>`
   const toolTipHtml = `<div
   id="${toolTipId}"
   class="sidebar-tooltips__content"
   style="left: 55px"
->
+  >
   ${toTopLabel}
-</div>`
+  </div>`
 
   const contactListSelector = '.q-scroll-view'
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu'
@@ -91,33 +92,32 @@
    * @returns {[HTMLDivElement, HTMLDivElement] | null}
    */
   function createLeftBarItem(iconHtml, label, className) {
-    const barItemEl = /** @type {HTMLElement | null} */ (
-      document.querySelector(barItemSelector)
-    )
+    const barItemEl = Array.from(document.querySelectorAll(barItemSelector))
+    .find(el => !el.querySelector('.q-badge'))
     if (!barItemEl) return null
-    const templateLeftBarElem = /** @type {HTMLDivElement} */ (
-      barItemEl.cloneNode(true)
-    )
-    const iconEl = /** @type {HTMLElement} */ (
-      templateLeftBarElem.querySelector('i.q-icon')
-    )
-    iconEl.innerHTML = iconHtml
-    const itemChildElem = /** @type {HTMLDivElement} */ (
-      templateLeftBarElem.firstElementChild?.firstElementChild
-    )
-    itemChildElem.classList.value = `${className} func-menu__item vue-component`
-    templateLeftBarElem
+      const templateLeftBarElem = /** @type {HTMLDivElement} */ (
+        barItemEl.cloneNode(true)
+      )
+      const iconEl = /** @type {HTMLElement} */ (
+        templateLeftBarElem.querySelector('i.q-icon')
+      )
+      iconEl.innerHTML = iconHtml
+      const itemChildElem = /** @type {HTMLDivElement} */ (
+        templateLeftBarElem.firstElementChild?.firstElementChild
+      )
+      itemChildElem.classList.value = `${className} func-menu__item vue-component`
+      templateLeftBarElem
       .querySelector('div[aria-label]')
       ?.setAttribute('aria-label', label)
-    templateLeftBarElem.addEventListener('click', toContactListTop)
+      templateLeftBarElem.addEventListener('click', toContactListTop)
 
-    document.body.insertAdjacentHTML('beforeend', toolTipHtml)
-    const toolTipElem = /** @type {HTMLDivElement} */ (
-      document.getElementById(toolTipId)
-    )
-    setupToolTip(templateLeftBarElem, toolTipElem)
+      document.body.insertAdjacentHTML('beforeend', toolTipHtml)
+      const toolTipElem = /** @type {HTMLDivElement} */ (
+        document.getElementById(toolTipId)
+      )
+      setupToolTip(templateLeftBarElem, toolTipElem)
 
-    return [templateLeftBarElem, toolTipElem]
+      return [templateLeftBarElem, toolTipElem]
   }
 
   /** @type {[HTMLDivElement, HTMLDivElement] | null} */
@@ -140,7 +140,7 @@
 
   function clearEnableRetryTimeout() {
     if (enableRetryTimeout) clearTimeout(enableRetryTimeout)
-    enableRetryTimeout = null
+      enableRetryTimeout = null
   }
 
   function disable() {
@@ -182,7 +182,7 @@
     }
     currentEnabled = state
     if (state) enable()
-    else disable()
+      else disable()
   }
 
   scriptio.listen(toggle, true)

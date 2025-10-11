@@ -26,21 +26,21 @@
   viewBox="0 0 16 16"
   xmlns="http://www.w3.org/2000/svg">
   <path
-  stoke-width="1.5"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-  fill="none"
-  stroke="currentColor"
-  d="m 4,10 4,-4 4,4"
+    stoke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    stroke="currentColor"
+    d="m 4,10 4,-4 4,4"
   />
-  </svg>`
+</svg>`
   const toolTipHtml = `<div
   id="${toolTipId}"
   class="sidebar-tooltips__content"
   style="left: 55px"
-  >
+>
   ${toTopLabel}
-  </div>`
+</div>`
 
   const contactListSelector = '.q-scroll-view'
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu'
@@ -95,29 +95,29 @@
     const barItemEl = Array.from(document.querySelectorAll(barItemSelector))
     .find(el => !el.querySelector('.q-badge'))
     if (!barItemEl) return null
-      const templateLeftBarElem = /** @type {HTMLDivElement} */ (
-        barItemEl.cloneNode(true)
-      )
-      const iconEl = /** @type {HTMLElement} */ (
-        templateLeftBarElem.querySelector('i.q-icon')
-      )
-      iconEl.innerHTML = iconHtml
-      const itemChildElem = /** @type {HTMLDivElement} */ (
-        templateLeftBarElem.firstElementChild?.firstElementChild
-      )
-      itemChildElem.classList.value = `${className} func-menu__item vue-component`
-      templateLeftBarElem
+    const templateLeftBarElem = /** @type {HTMLDivElement} */ (
+      barItemEl.cloneNode(true)
+    )
+    const iconEl = /** @type {HTMLElement} */ (
+      templateLeftBarElem.querySelector('i.q-icon')
+    )
+    iconEl.innerHTML = iconHtml
+    const itemChildElem = /** @type {HTMLDivElement} */ (
+      templateLeftBarElem.firstElementChild?.firstElementChild
+    )
+    itemChildElem.classList.value = `${className} func-menu__item vue-component`
+    templateLeftBarElem
       .querySelector('div[aria-label]')
       ?.setAttribute('aria-label', label)
-      templateLeftBarElem.addEventListener('click', toContactListTop)
+    templateLeftBarElem.addEventListener('click', toContactListTop)
 
-      document.body.insertAdjacentHTML('beforeend', toolTipHtml)
-      const toolTipElem = /** @type {HTMLDivElement} */ (
-        document.getElementById(toolTipId)
-      )
-      setupToolTip(templateLeftBarElem, toolTipElem)
+    document.body.insertAdjacentHTML('beforeend', toolTipHtml)
+    const toolTipElem = /** @type {HTMLDivElement} */ (
+      document.getElementById(toolTipId)
+    )
+    setupToolTip(templateLeftBarElem, toolTipElem)
 
-      return [templateLeftBarElem, toolTipElem]
+    return [templateLeftBarElem, toolTipElem]
   }
 
   /** @type {[HTMLDivElement, HTMLDivElement] | null} */
@@ -140,7 +140,7 @@
 
   function clearEnableRetryTimeout() {
     if (enableRetryTimeout) clearTimeout(enableRetryTimeout)
-      enableRetryTimeout = null
+    enableRetryTimeout = null
   }
 
   function disable() {
@@ -182,7 +182,7 @@
     }
     currentEnabled = state
     if (state) enable()
-      else disable()
+    else disable()
   }
 
   scriptio.listen(toggle, true)

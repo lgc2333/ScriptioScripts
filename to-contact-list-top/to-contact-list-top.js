@@ -92,20 +92,28 @@
    * @returns {[HTMLDivElement, HTMLDivElement] | null}
    */
   function createLeftBarItem(iconHtml, label, className) {
-    const barItemEl = Array.from(document.querySelectorAll(barItemSelector))
-    .find(el => !el.querySelector('.q-badge'))
+    const allBarItemEl = /** @type {NodeListOf<HTMLElement>} */ (
+      document.querySelectorAll(barItemSelector)
+    )
+    const barItemEl = Array.from(allBarItemEl).find(
+      (el) => !el.querySelector('.q-badge'),
+    )
     if (!barItemEl) return null
+
     const templateLeftBarElem = /** @type {HTMLDivElement} */ (
       barItemEl.cloneNode(true)
     )
+
     const iconEl = /** @type {HTMLElement} */ (
       templateLeftBarElem.querySelector('i.q-icon')
     )
     iconEl.innerHTML = iconHtml
+
     const itemChildElem = /** @type {HTMLDivElement} */ (
       templateLeftBarElem.firstElementChild?.firstElementChild
     )
     itemChildElem.classList.value = `${className} func-menu__item vue-component`
+
     templateLeftBarElem
       .querySelector('div[aria-label]')
       ?.setAttribute('aria-label', label)

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         To Contact List Top
 // @description  添加一个回到聊天列表顶部的侧边栏按钮
-// @version      2.1
-// @author       LgCookie
+// @version      2.2
+// @author       LgCookie,Luorix
 // @license      MIT
 // @homepageURL  https://github.com/lgc2333/ScriptioScripts/tree/main/to-contact-list-top
 // @run-at       main
@@ -10,6 +10,7 @@
 // ==/UserScript==
 
 // 更新日志：
+// v2.2：修复如果克隆的元素为邮件元素时，可能会复制红色角标的问题
 // v2.1：添加工具提示
 // v2.0：适配新版 Scriptio，有点笨地修复了 #5
 // v1.3：实现 #4，确保按钮始终置顶
@@ -91,21 +92,28 @@
    * @returns {[HTMLDivElement, HTMLDivElement] | null}
    */
   function createLeftBarItem(iconHtml, label, className) {
-    const barItemEl = /** @type {HTMLElement | null} */ (
-      document.querySelector(barItemSelector)
+    const allBarItemEl = /** @type {NodeListOf<HTMLElement>} */ (
+      document.querySelectorAll(barItemSelector)
+    )
+    const barItemEl = Array.from(allBarItemEl).find(
+      (el) => !el.querySelector('.q-badge'),
     )
     if (!barItemEl) return null
+
     const templateLeftBarElem = /** @type {HTMLDivElement} */ (
       barItemEl.cloneNode(true)
     )
+
     const iconEl = /** @type {HTMLElement} */ (
       templateLeftBarElem.querySelector('i.q-icon')
     )
     iconEl.innerHTML = iconHtml
+
     const itemChildElem = /** @type {HTMLDivElement} */ (
       templateLeftBarElem.firstElementChild?.firstElementChild
     )
     itemChildElem.classList.value = `${className} func-menu__item vue-component`
+
     templateLeftBarElem
       .querySelector('div[aria-label]')
       ?.setAttribute('aria-label', label)

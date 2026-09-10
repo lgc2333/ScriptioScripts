@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         To Contact List Top
 // @description  添加一个回到聊天列表顶部的侧边栏按钮
-// @version      2.2
-// @author       LgCookie,Luorix
+// @version      2.3
+// @author       LgCookie, Luorix
 // @license      MIT
 // @homepageURL  https://github.com/lgc2333/ScriptioScripts/tree/main/to-contact-list-top
 // @run-at       main
@@ -10,6 +10,7 @@
 // ==/UserScript==
 
 // 更新日志：
+// v2.3: 适配新版 QQ 布局（#7），不保证旧版 QQ 下的兼容性
 // v2.2：修复如果克隆的元素为邮件元素时，可能会复制红色角标的问题
 // v2.1：添加工具提示
 // v2.0：适配新版 Scriptio，有点笨地修复了 #5
@@ -42,7 +43,9 @@
   ${toTopLabel}
 </div>`
 
-  const contactListSelector = '.q-scroll-view'
+  const recentContactListSelector = '.q-scroll-view.recent-contact-list'
+  const contactListWrapperSelector = `.contact .contact-layout__content-area`
+  const contactListSelector = `${contactListWrapperSelector} .q-scroll-view.contact-list`
   const lowerSidebarSelector = '.sidebar__lower .sidebar__menu'
   const barItemSelector = `${lowerSidebarSelector} .func-menu__item_wrap`
 
@@ -56,14 +59,27 @@
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
   }
 
+  /**
+   * @param {HTMLElement?} elem
+   */
+  function scrollElemToTop(elem) {
+    if (!elem) return
+    elem.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   function toContactListTop() {
-    const nodeList = document.querySelectorAll(contactListSelector)
-    for (let i = 0; i < nodeList.length; i++) {
-      const elem = /** @type {HTMLElement} */ (nodeList[i])
-      if (elemVisible(elem)) {
-        elem.scrollTo({ top: 0, behavior: 'smooth' })
-        break
-      }
+    let el = /** @type {HTMLElement | null} */ (
+      document.querySelector(recentContactListSelector)
+    )
+    if (el && elemVisible(el)) {
+      scrollElemToTop(el)
+      return
+    }
+
+    el = /** @type {HTMLElement | null} */ (document.querySelector(contactListSelector))
+    if (el && elemVisible(el)) {
+      scrollElemToTop(document.querySelector(contactListWrapperSelector))
+      scrollElemToTop(el)
     }
   }
 
